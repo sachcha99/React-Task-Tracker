@@ -5,11 +5,18 @@ import { About } from './components/About';
 import { AddTask } from './components/AddTask';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
+import { Modal } from './components/Modal';
 import { Tasks } from './components/Tasks';
 
 
 
 function App() {
+const[showModal,setShowModal] = useState(false)
+
+const openModal = () => {
+  setShowModal(prev=>!prev)
+}
+
   const[showAddTask, setShowAddTask] = useState(false)
 
   const [tasks,setTasks] = useState([])
@@ -93,10 +100,14 @@ function App() {
 
   return (
     <Router>
+      
+        <Modal onAdd={addTask} showModal={showModal} setShowModal={setShowModal}/>
       <div className="container">
         <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask}/>
+        <div className="add-new">
+          <button  className="btn btn-add" onClick={openModal}>Add New Task</button>
+        </div>
         
-      
         <Route
           path='/'
           exact
