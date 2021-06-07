@@ -2,7 +2,7 @@ import React from 'react'
 import {useRef,useState,useEffect} from 'react'
 import {FaTimes} from 'react-icons/fa'
 
-export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTask}) => {
+export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTask,setLoading}) => {
       
 
      
@@ -30,7 +30,7 @@ export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTas
         
                 }   
                
-          },[edData!=null]);
+          },[edData]);
         
         const closeModal = () =>{
             
@@ -44,24 +44,28 @@ export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTas
         }
     
         
-     const handleText= (e) =>{
+    const handleText = (e) => {
         setText(e.target.value)
+
+    }
         
-     }   
-        
-    const onSubmitForm = (e) =>{
+    const onSubmitForm = (e) => {
+        setLoading(true);
         e.preventDefault()
+        
 
-        if(edData==null){
-            if (!text){
+        if (edData == null) {
+            if (!text) {
                 alert('Please add a task')
-                
-            }
-            
-            onAdd({text,day,reminder})
 
-        }else {
-            updateTask({id,text,day,reminder})
+            }
+
+            onAdd({ text, day, reminder })
+            
+
+        } else {
+            updateTask({ id, text, day, reminder })
+           
         }
         setEd(null)
         setId('')
@@ -69,9 +73,9 @@ export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTas
         setDay('')
         setReminder(false)
 
-        setShowModal(prev=>!prev)
-        
-       
+        setShowModal(prev => !prev)
+
+
     }
     return (
         <>
@@ -84,11 +88,11 @@ export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTas
                             <h2 className="modalTitle">{edData==null? 'Add New Task':'Update Task'}</h2>
                         <form className="add-form"  onSubmit={onSubmitForm}>
                             <div className="form-control">
-                                <label htmlFor="">Task</label>
+                                <label htmlFor="">Task :</label>
                                 <input type="text"  placeholder="Add Task" name="" id=""   value={text} onChange={handleText}/>
                             </div>
                             <div className="form-control ">
-                                <label htmlFor="">Date & Time</label>
+                                <label htmlFor="">Date & Time :</label>
                           
 
 
@@ -96,7 +100,7 @@ export const Modal = ({edData,showModal,setShowModal,onAdd,setEd,tasks,updateTas
                                 <input type="text" placeholder="Add Date and Time" name="" id="" value={day} onChange={(e) => setDay(e.target.value)}/>
                             </div>
                             <div className="form-control form-control-check">
-                                <label htmlFor="">Set Reminder</label>
+                                <label htmlFor="">Set Reminder </label>
                                 <input type="checkbox" checked={reminder} name="" id="" value={reminder} onChange={(e) => setReminder(e.currentTarget.checked)}/>
                             </div>
                          

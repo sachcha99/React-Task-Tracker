@@ -8,12 +8,15 @@ import { Header } from './components/Header';
 import { Modal } from './components/Modal';
 import { Tasks } from './components/Tasks';
 import { UpdateModal } from './components/UpdateModal';
-
+import {Spinner}  from 'react-bootstrap';
 
 function App() {
 
 const[showModal,setShowModal] = useState(false)
 const [edData,setEd] = useState(null)
+
+const[loading,setLoading]= useState(true)
+
 
 
 const openModal = async () => {
@@ -30,19 +33,30 @@ const openModal = async () => {
 
 
   useEffect(() =>{
+    
     const getTasks = async() =>{
+      
       const tasksFromServer= await fetchTasks()
       setTasks(tasksFromServer)
+      setLoading(false)
+      
+     
     }
     getTasks()
+   
+   
+    
   })
 
   //Fetch Tasks
   const fetchTasks =async ()=>{
+    
     const res = await fetch('https://tasktrack-back.herokuapp.com/tasks')
     const data = await res.json()
-
+    
     return data
+    
+   
   }
 
    //Fetch Task
@@ -51,6 +65,8 @@ const openModal = async () => {
     const data = await res.json()
 
     return data
+    
+    
   }
 
 
@@ -68,6 +84,9 @@ console.log(task)
 
     const data= await res.json()
     setTasks([...tasks,data])
+    // setLoading(false)
+    
+    
 
   // const id = Math.floor(Math.random()*10000)+1
   
@@ -77,17 +96,20 @@ console.log(task)
 
   //Delete Task
   const deleteTask = async (id) => {
+   
 
     await fetch(`https://tasktrack-back.herokuapp.com/tasks/${id}`,{
       method: 'DELETE',
     })
 
     setTasks(tasks.filter((task)=> task.id !== id))
+    setLoading(false)
+    
   }
 
   //Toggle Reminder
   const toggleReminder =async (id) =>{
-
+    
     const taskToToggle = await fetchTask(id)
     console.log(taskToToggle)
     const updTask = { ... taskToToggle,
@@ -105,6 +127,9 @@ console.log(task)
     ?
     {...task,reminder:!task.reminder} 
     :task ))
+    setLoading(false)
+    
+   
   }
 
   //Edit Task
@@ -133,7 +158,7 @@ console.log(task)
 
   //UpdateTask
   const updateTask =async (task) =>{
-
+   
     const id= task.id
 
     const taskToEdit = await fetchTask(id)
@@ -157,6 +182,8 @@ console.log(task)
     ?
     {...task,reminder:task.reminder,day:task.day,text:task.text} 
     :task ))
+    // setLoading(false)
+    
   }
 
 
@@ -164,12 +191,13 @@ console.log(task)
   return (
     <Router>
       
-      <Modal onAdd={addTask} tasks={tasks} setEd={setEd} edData={edData} updateTask={updateTask} onEdit={editTask} showModal={showModal} setShowModal={setShowModal}/>
+      <Modal onAdd={addTask} tasks={tasks} setEd={setEd} edData={edData} updateTask={updateTask} onEdit={editTask} showModal={showModal} setShowModal={setShowModal} setLoading={setLoading}/>
        
       <div className="container">
         <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask}/>
         <div className="add-new">
-          <button  className="btn btn-add" onClick={openModal}>Add New Task</button>
+          <button  className="btn btn-add" onClick={openModal}>Add New Task</button> 
+          {loading ? <Spinner animation="border"/> : ''}
         </div>
         
         <Route
@@ -178,9 +206,13 @@ console.log(task)
           render={(props)=> (
             <> 
             {showAddTask && <AddTask  onAdd={addTask}/>}
+            
                     {tasks.length>0 ?(
-                    <Tasks tasks={tasks} onEdit={editTask} onDelete={deleteTask} onToggle={toggleReminder}/>)
+                      
+                    <Tasks  setLoading={setLoading} loading={loading} tasks={tasks} onEdit={editTask} onDelete={deleteTask} onToggle={toggleReminder}/>)
+                    
                     :(
+                      
                       'No Tasks To Show'
                     ) }
             </>
