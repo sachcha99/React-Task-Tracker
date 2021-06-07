@@ -7,19 +7,27 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { Modal } from './components/Modal';
 import { Tasks } from './components/Tasks';
-
+import { UpdateModal } from './components/UpdateModal';
 
 
 function App() {
-const[showModal,setShowModal] = useState(false)
 
-const openModal = () => {
+const[showModal,setShowModal] = useState(false)
+const [edData,setEd] = useState(null)
+
+
+const openModal = async () => {
+  
   setShowModal(prev=>!prev)
 }
+
+
 
   const[showAddTask, setShowAddTask] = useState(false)
 
   const [tasks,setTasks] = useState([])
+ 
+
 
   useEffect(() =>{
     const getTasks = async() =>{
@@ -27,7 +35,7 @@ const openModal = () => {
       setTasks(tasksFromServer)
     }
     getTasks()
-  },[])
+  })
 
   //Fetch Tasks
   const fetchTasks =async ()=>{
@@ -48,7 +56,7 @@ const openModal = () => {
 
   //Add Task
   const addTask= async (task)=>{
-
+console.log(task)
     const res  = await fetch('https://tasktrack-back.herokuapp.com/tasks',{
       method: 'POST',
       headers: {
@@ -81,6 +89,7 @@ const openModal = () => {
   const toggleReminder =async (id) =>{
 
     const taskToToggle = await fetchTask(id)
+    console.log(taskToToggle)
     const updTask = { ... taskToToggle,
     reminder: !taskToToggle.reminder}
 
@@ -98,10 +107,65 @@ const openModal = () => {
     :task ))
   }
 
+  //Edit Task
+  const editTask = async (id) => {
+     
+    // for(let i=0;i<tasks.length;i++)
+    // {
+    //   if(tasks[i].id==id){
+    //     console.log(tasks[i])
+    //     setEd(tasks[i])
+        
+    //   }
+    // }
+    //console.log(tasks)
+    //const data = await fetchTask(id)
+   
+    //console.log(edData)
+
+
+    setEd(id)
+    openModal()
+    
+         
+    
+  }
+
+  //UpdateTask
+  const updateTask =async (task) =>{
+
+    const id= task.id
+
+    const taskToEdit = await fetchTask(id)
+    console.log(taskToEdit)
+    console.log(task)
+    const updateTask = { ... taskToEdit,
+    text: task.text,day: task.day,reminder: task.reminder,
+  
+   }
+
+   
+   const res = await fetch(`https://tasktrack-back.herokuapp.com/tasks/${id}`,{
+      method: 'PUT',
+      headers: {'Content-type' : 'application/json',},
+      body:JSON.stringify(updateTask),
+    })
+
+    const data = await res.json()
+
+    setTasks(tasks.map((task)=> task.id===id 
+    ?
+    {...task,reminder:task.reminder,day:task.day,text:task.text} 
+    :task ))
+  }
+
+
+
   return (
     <Router>
       
-        <Modal onAdd={addTask} showModal={showModal} setShowModal={setShowModal}/>
+      <Modal onAdd={addTask} tasks={tasks} setEd={setEd} edData={edData} updateTask={updateTask} onEdit={editTask} showModal={showModal} setShowModal={setShowModal}/>
+       
       <div className="container">
         <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask}/>
         <div className="add-new">
@@ -115,7 +179,7 @@ const openModal = () => {
             <> 
             {showAddTask && <AddTask  onAdd={addTask}/>}
                     {tasks.length>0 ?(
-                    <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder}/>)
+                    <Tasks tasks={tasks} onEdit={editTask} onDelete={deleteTask} onToggle={toggleReminder}/>)
                     :(
                       'No Tasks To Show'
                     ) }

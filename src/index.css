@@ -198,3 +198,6 @@ footer {
 .btn-add:hover{
   background-color: rgb(1, 100, 1);
 }
+.modalTitle{
+  padding-top: 40px;
+}
